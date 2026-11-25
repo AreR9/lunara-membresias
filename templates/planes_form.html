@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+
+{% block title %}LUNARA+ | CRUD Planes{% endblock %}
+
+{% block content %}
+<!-- Barrita de título -->
+<div class="sub-header">
+    <div class="sub-container">
+        <h2 class="sub-title">{% if plan_editar %}EDITAR PLAN #{{ plan_editar.id }}{% else %}REGISTRO DE PLAN{% endif %}</h2>
+        <span class="sub-badge">Planes LUNARA</span>
+    </div>
+</div>
+
+<!-- CONTENEDOR PRINCIPAL RECTANGULAR -->
+<div class="crud-layout">
+
+    <!-- Formulario de Registro / Edición -->
+    <div class="panel-box form-panel">
+        <h3 class="panel-title">{% if plan_editar %}Actualizar Datos{% else %}Nuevo Plan{% endif %}</h3>
+        
+        <form action="{% if plan_editar %}/planes/actualizar/{{ plan_editar.id }}{% else %}/planes/guardar{% endif %}" method="POST">
+            
+            <div class="form-group">
+                <label>Nombre</label>
+                <input type="text" name="nombre" value="{{ plan_editar.nombre if plan_editar else '' }}" required placeholder="Ej. Luna">
+            </div>
+
+
+            <div class="form-group">
+                <label>Descripcion</label>
+                <input type="text" name="descripcion" value="{{ plan_editar.descripcion if plan_editar else '' }}" required placeholder="Ej. Plan mensual">
+            </div>
+
+            <div class="form-group">
+                <label>Precio</label>
+                <input type="text" name="precio" value="{{ plan_editar.precio if plan_editar else '' }}" required placeholder="Ej. 99.99">
+            </div>
+
+            <div class="form-group">
+                <label>Duracion (dias)</label>
+                <input type="text" name="duracion" value="{{ plan_editar.duracion if plan_editar else '' }}" required placeholder="Ej. 30">
+            </div>
+
+
+            <div class="form-actions">
+                <button type="submit" class="btn-rect btn-primary">
+                    {% if plan_editar %}GUARDAR CAMBIOS{% else %}REGISTRAR{% endif %}
+                </button>
+                {% if plan_editar %}
+                    <a href="/planes" class="btn-rect btn-secondary">CANCELAR</a>
+                {% endif %}
+            </div>
+
+        </form>
+    </div>
+
+    <!-- TABLA DE REGISTROS -->
+    <div class="panel-box table-panel">
+        <h3 class="panel-title">Planes Activos</h3>
+        
+        <table class="rect-table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>NOMBRE</th>
+                    <th>DESCRIPCIÓN</th>
+                    <th>PRECIO</th>
+                    <th>DURACIÓN</th>
+                    <th>ACCIONES</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% if lista_planes %}
+                    {% for plan in lista_planes %}
+                    <tr>
+                        <td><strong>#{{ plan.id }}</strong></td>
+                        <td>{{ plan.nombre }}</td>
+                        <td>{{ plan.descripcion }}</td>
+                        <td>${{ plan.precio }}</td>
+                        <td>{{ plan.duracion }} días</td>
+                        <td class="table-actions">
+                            <a href="/planes/editar/{{ plan.id }}" class="btn-action btn-edit">EDITAR</a>
+                            <a href="/planes/eliminar/{{ plan.id }}" class="btn-action btn-delete" onclick="return confirm('¿Eliminar plan?')">ELIMINAR</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                {% else %}
+                    <tr>
+                        <td colspan="6" style="text-align: center; color: #888;">No hay registros de planes.</td>
+                    </tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+
+</div>
+{% endblock %}      

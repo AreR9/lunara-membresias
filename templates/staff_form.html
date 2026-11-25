@@ -1,0 +1,101 @@
+{% extends "base.html" %}<!--Le decimos a flask que use la plantilla que ya teniamos hecha en base.html
+ y por eso ya no tengo que copiar y pegar todod debnuevo-->
+
+{% block title %}LUNARA+ | CRUD Staff{% endblock %}<!--Le ponemos titulo ala pestaña-->
+
+{% block content %}
+<!-- barrita de titulo -->
+<div class="sub-header">
+    <div class="sub-container">
+        <h2 class="sub-title">{% if staff_editar %}EDITAR STAFF #{{ staff_editar.id }}{% else %}REGISTRO DE STAFF{% endif %}</h2><!-- si es registro se pone en regisyro y si es staff se pone en staff-->
+        <span class="sub-badge">Gestion Staff LUNARA</span>
+    </div>
+</div>
+
+
+<div class="crud-layout">
+
+    <!-- contenedor en rectanguko que tiene el frm-->
+    <div class="panel-box form-panel">
+        <h3 class="panel-title">{% if staff_editar %}Actualizar Datos{% else %}Nuevo Integrante{% endif %}</h3>
+        
+        <form action="{% if staff_editar %}/staff/actualizar/{{ staff_editar.id }}{% else %}/staff/guardar{% endif %}" method="POST">
+            
+            <div class="form-group">
+                <label>Nombre(s)</label>
+                <input type="text" name="nombre" value="{{ staff_editar.nombre if staff_editar else '' }}" required placeholder="Ej. Luna">
+            </div>
+
+            <div class="form-group">
+                <label>Apellido(s)</label>
+                <input type="text" name="apellido" value="{{ staff_editar.apellido if staff_editar else '' }}" required placeholder="Ej. Sparkle">
+            </div>
+
+            <div class="form-group">
+                <label>Usuario</label>
+                <input type="text" name="usuario" value="{{ staff_editar.usuario if staff_editar else '' }}" required placeholder="Ej. admin_luna">
+            </div>
+
+            <div class="form-group">
+                <label>Correo Electrónico</label>
+                <input type="email" name="correo" value="{{ staff_editar.correo if staff_editar else '' }}" required placeholder="correo@lunara.com">
+            </div>
+
+            <div class="form-group">
+                <label>Contraseña</label>
+                <input type="password" name="password" required placeholder="Ingrese su contraseña">
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn-rect btn-primary">
+                    {% if staff_editar %}GUARDAR CAMBIOS{% else %}REGISTRAR{% endif %}
+                </button>
+                {% if staff_editar %}
+                    <a href="/staff" class="btn-rect btn-secondary">CANCELAR</a>
+                {% endif %}
+            </div>
+
+        </form>
+    </div>
+
+    <!-- COLUMNA 2: TABLA DE REGISTROS -->
+    <div class="panel-box table-panel">
+        <h3 class="panel-title">Personal Activo</h3>
+        <!--creo la tabla-->
+
+        <table class="rect-table">
+            <thead>
+                <tr><!--tr texto en horitzontal-->
+                    <th>ID</th>
+                    <th>NOMBRE COMPLETO</th>
+                    <th>USUARIO</th>
+                    <th>CORREO</th>
+                    <th>ACCIONES</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!--Recorro la lista de staff-->
+                {% if lista_staff %}
+                    {% for persona in lista_staff %}<!--por cada persona en la lista de staff-->
+                    <tr>
+                        <td><strong>#{{ persona.id }}</strong></td>
+                        <td>{{ persona.nombre }} {{ persona.apellido }}</td>
+                        <td>{{ persona.usuario }}</td>
+                        <td>{{ persona.correo }}</td><!--Pongo los datos en horizontal-->
+                        <td class="table-actions">
+                            <a href="/staff/editar/{{ persona.id }}" class="btn-action btn-edit">EDITAR</a>
+                            <a href="/staff/eliminar/{{ persona.id }}" class="btn-action btn-delete" onclick="return confirm('¿Eliminar usuario?')">ELIMINAR</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                {% else %}
+                    <tr>
+                        <td colspan="5" style="text-align: center; color: #888;">No hay registros de personal.</td>
+                    </tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+
+</div>
+{% endblock %}

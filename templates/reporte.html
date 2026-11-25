@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="crud-layout">
+
+    <!-- ENCABEZADO -->
+    <div class="sub-header">
+        <div class="sub-container">
+            <h2 class="sub-title">Reporte Auditoria</h2>
+            <span class="sub-badge">Gestion Reportes LUNARA</span>
+        </div>
+    </div>
+
+    <!-- MENSAJES FLASH -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="flash-msg flash-{{ category }}">{{ message }}</div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
+    <!-- TABLA DEL REPORTE -->
+    <div class="panel-box table-panel" style="width: 100%;">
+        <h3>Consolidado de Transacciones y Contratos</h3>
+        
+        <table class="rect-table">
+            <thead>
+                <tr>
+                    <th>CLIENTE</th>
+                    <th>PLAN / MEMBRESIA</th>
+                    <th>FECHA INICIO</th>
+                    <th>FECHA VENCIMIENTO</th>
+                    <th>ESTADO</th>
+                    <th>MONTO PAGADO</th>
+                    <th>EMPLEADO OPERADOR</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for fila in reporte %}
+                <tr>
+                    <td><strong>{{ fila.cliente_nombre }}</strong></td>
+                    <td>{{ fila.plan_nombre }}</td>
+                    <td>{{ fila.fecha_inicio }}</td>
+                    <td>{{ fila.fecha_vencimiento }}</td>
+                    <td>
+                        <span class="badge status-active">{{ fila.estado_contrato }}</span>
+                    </td>
+                    <td>${{ "%.2f"|format(fila.monto_pago) }}</td>
+                    <td>{{ fila.empleado_nombre }}</td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="7" style="text-align: center;">No se encontraron registros de contratos activos para la auditoría.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+</div>
+{% endblock %}

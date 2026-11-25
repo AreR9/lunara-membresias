@@ -1,0 +1,102 @@
+{% extends "base.html" %}
+
+{% block title %}LUNARA+ | CRUD Clientes{% endblock %}
+
+{% block content %}
+<!-- Barrita de título -->
+<div class="sub-header">
+    <div class="sub-container">
+        <h2 class="sub-title">{% if cliente_editar %}EDITAR CLIENTE #{{ cliente_editar.id }}{% else %}REGISTRO DE CLIENTE{% endif %}</h2>
+        <span class="sub-badge">Clientes LUNARA</span>
+    </div>
+</div>
+
+<!-- CONTENEDOR PRINCIPAL RECTANGULAR -->
+<div class="crud-layout">
+
+    <!-- Formulario de Registro / Edición -->
+    <div class="panel-box form-panel">
+        <h3 class="panel-title">{% if cliente_editar %}Actualizar Datos{% else %}Nuevo Cliente{% endif %}</h3>
+        
+        <form action="{% if cliente_editar %}/clientes/actualizar/{{ cliente_editar.id }}{% else %}/clientes/guardar{% endif %}" method="POST">
+            
+            <div class="form-group">
+                <label>Nombre(s)</label>
+                <input type="text" name="nombre" value="{{ cliente_editar.nombre if cliente_editar else '' }}" required placeholder="Ej. Luna">
+            </div>
+
+            <div class="form-group">
+                <label>Apellido(s)</label>
+                <input type="text" name="apellido" value="{{ cliente_editar.apellido if cliente_editar else '' }}" required placeholder="Ej. García">
+            </div>
+
+            <div class="form-group">
+                <label>Correo Electrónico</label>
+                <input type="email" name="correo" value="{{ cliente_editar.correo if cliente_editar else '' }}" required placeholder="correo@lunara.com">
+            </div>
+
+            <div class="form-group">
+                <label>Documento de Identidad</label>
+                <input type="text" name="documento" maxlength="10" value="{{ cliente_editar.documento if cliente_editar else '' }}" required placeholder="Ej. 123456789">
+            </div>
+
+            <div class="form-group">
+                <label>Telefono</label>
+                <input type="text" name="telefono" maxlength="10" value="{{ cliente_editar.telefono if cliente_editar else '' }}" required placeholder="Ej. 5512345678">
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn-rect btn-primary">
+                    {% if cliente_editar %}GUARDAR CAMBIOS{% else %}REGISTRAR{% endif %}
+                </button>
+                {% if cliente_editar %}
+                    <a href="/clientes" class="btn-rect btn-secondary">CANCELAR</a>
+                {% endif %}
+            </div>
+
+        </form>
+    </div>
+
+    <!-- TABLA DE REGISTROS -->
+    <div class="panel-box table-panel">
+        <h3 class="panel-title">Clientes Activos</h3>
+        
+        <table class="rect-table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>NOMBRE</th>
+                    <th>APELLIDO</th>
+                    <th>DOCUMENTO</th>
+                    <th>TELÉFONO</th>
+                    <th>CORREO</th>
+                    <th>ACCIONES</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% if lista_clientes %}
+                    {% for cliente in lista_clientes %}
+                    <tr>
+                        <td><strong>#{{ cliente.id }}</strong></td>
+                        <td>{{ cliente.nombre }}</td>
+                        <td>{{ cliente.apellido }}</td>
+                        <td>{{ cliente.documento }}</td>
+                        <td>{{ cliente.telefono }}</td>
+                        <td>{{ cliente.correo }}</td>
+                        <td class="table-actions">
+                            <a href="/clientes/editar/{{ cliente.id }}" class="btn-action btn-edit">EDITAR</a>
+                            <a href="/clientes/eliminar/{{ cliente.id }}" class="btn-action btn-delete" onclick="return confirm('¿Eliminar cliente?')">ELIMINAR</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                {% else %}
+                    <tr>
+                        <td colspan="6" style="text-align: center; color: #888;">No hay registros de clientes.</td>
+                    </tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+
+</div>
+{% endblock %}

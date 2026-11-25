@@ -1,0 +1,148 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="crud-layout">
+
+    <!-- TITULO DE ARRIBA -->
+    <div class="sub-header">
+        <div class="sub-container">
+            <h2 class="sub-title">
+                <!-- si estoy editando cambio el titulo de la pantalla -->
+                {% if suscripcion_editar %}Editar Suscripcion{% else %}Nueva Suscripcion{% endif %}
+            </h2>
+            <span class="sub-badge">Suscripciones LUNARA</span>
+        </div>
+    </div>
+
+    <!-- CAJA DEL FORMULARIO PARA GUARDAR O EDITAR -->
+    <div class="panel-box form-panel">
+        
+        <!-- decido a que ruta mandar los datos: guardar o actualizar -->
+        {% if suscripcion_editar %}
+            {% set form_action = url_for('suscripciones_actualizar', id=suscripcion_editar.id) %}
+        {% else %}
+            {% set form_action = url_for('suscripciones_guardar') %}
+        {% endif %}
+
+        <form action="{{ form_action }}" method="POST">
+            
+            <!-- desplegable de clientes -->
+            <div class="form-group">
+                <label>Cliente:</label>
+                <select name="cliente_id" required class="form-control">
+                    <option value="" disabled {% if not suscripcion_editar %}selected{% endif %}>-- Seleccione Cliente --</option><!--si no estoy en edit se selecciona esta opción-->
+                    {% for c in lista_clientes %}<!--recorro la lista de clientes y pongo el id y el nombre completo-->
+                        <option value="{{ c.id }}" {% if suscripcion_editar and c.id == suscripcion_editar.client_id %}selected{% endif %}><!--en dado caso qeu -->
+                            #{{ c.id }} - {{ c.nombre_completo }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <!-- desplegable de planes -->
+            <div class="form-group">
+                <label>Plan / Membresia:</label>
+                <select name="membresia_id" required class="form-control" aria-describedby="help-plan">
+                    <option value="" disabled {% if not suscripcion_editar %}selected{% endif %}>-- Seleccione Plan --</option>
+                    {% for m in lista_planes %}<!--recorro la lista de planes y pongo id y nombre duaracion precio-->
+                        <option value="{{ m.id }}" {% if suscripcion_editar and m.id == suscripcion_editar.membership_id %}selected{% endif %}>
+                            {{ m.nombre }} (${{ "%.2f"|format(m.precio) }} - {{ m.duracion }} dias)
+                        </option>
+                    {% endfor %}
+                </select>
+              
+            </div>
+
+            <!-- casilla para la fecha -->
+             <!-- para que se abra el calendario al hacer click -->
+              <!--el calendario sale del input y se muestra -->
+            <div class="form-group">
+                <label for="fecha_inicio">Fecha de Inicio:</label>
+                <input type="date" 
+                       id="fecha_inicio" 
+                       name="fecha_inicio" 
+                       required 
+                       class="form-control" 
+                       onclick="this.showPicker()" 
+                       value="{{ suscripcion_editar.start_date if suscripcion_editar else '' }}">
+              
+            </div>
+
+            <!-- desplegable de estado -->
+            <div class="form-group">
+                <label>Estado:</label>
+                <select name="estado" required class="form-control" aria-describedby="help-plan">
+                <!-- Lo que hace es evaluar el estado de la suscripcion y en la primera opcion se muestra el valor por defecto -->
+                 <option value="1" {% if suscripcion_editar and suscripcion_editar.status == 1 %}selected{% endif %}>Activo</option>
+                    <option value="0" {% if suscripcion_editar and suscripcion_editar.status == 0 %}selected{% endif %}>Inactivo</option>
+                </select>
+               
+            </div>
+
+            <!-- botones de abajo del formulario -->
+            <div class="form-actions">
+                <button type="submit" class="btn-rect btn-primary">
+                    {% if suscripcion_editar %}ACTUALIZAR SUSCRIPCION{% else %}REGISTRAR SUSCRIPCION{% endif %}
+                </button>
+
+                <!-- si estoy editando muestro el boton para cancelar y limpiar todo -->
+                {% if suscripcion_editar %}
+                    <a href="{{ url_for('suscripciones_form') }}" class="btn-rect btn-primary"><center>CANCELAR</center></a>
+                {% endif %}
+            </div>
+        </form>
+    </div>
+
+    <!-- CAJA DE LA TABLA CON LOS REGISTROS -->
+    <div class="panel-box table-panel">
+        <h3>Historial de Contratos</h3>
+        
+        <table class="rect-table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>CLIENTE</th>
+                    <th>PLAN</th>
+                    <th>INICIO</th>
+                    <th>FIN</th>
+                    <th>ESTADO</th>
+                    <th>ACCIONES</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- recorro la lista de contratos -->
+                {% for s in lista_suscripciones %}
+                <tr>
+                    <td>#{{ s.id }}</td>
+                    <td>{{ s.cliente_nombre }}</td>
+                    <td>{{ s.plan_nombre }}</td>
+                    <td>{{ s.fecha_inicio }}</td>
+                    <td>{{ s.fecha_fin }}</td>
+                    <td>
+                        <!-- si esta activo pongo texto verde sino texto inactivo -->
+                        {% if s.estado == 1 %}
+                            <span class="status-active">Activo</span>
+                        {% else %}
+                            <span class="status-inactive">Inactivo</span>
+                        {% endif %}
+                    </td>
+                    <td class="table-actions">
+                        <a href="{{ url_for('suscripciones_editar', id=s.id) }}" class="btn-action btn-edit">EDITAR</a>
+                        <!-- solo muestro dar de baja si la suscripcion sigue activa -->
+                        {% if s.estado == 1 %}
+                            <a href="{{ url_for('suscripciones_baja', id=s.id) }}" class="btn-action btn-delete" onclick="return confirm('¿Dar de baja esta suscripción?')">DAR DE BAJA</a>
+                        {% endif %}
+                    </td>
+                </tr>
+                <!-- si no hay nada guardado en la base de datos muestro esto -->
+                {% else %}
+                <tr>
+                    <td colspan="7">No hay contratos registrados.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+</div>
+{% endblock %}

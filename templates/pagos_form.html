@@ -1,0 +1,162 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="crud-layout">
+
+    <!-- ENCABEZADO -->
+    <div class="sub-header">
+        <div class="sub-container">
+            <h2 class="sub-title">
+                {% if pago_editar %}Editar Pago{% else %}Nuevo Pago{% endif %}
+            </h2>
+            <span class="sub-badge">Gestión Financiera LUNARA</span>
+        </div>
+    </div>
+
+    <!-- MENSAJES FLASH -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="flash-msg flash-{{ category }}">{{ message }}</div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
+    <!-- PANEL DEL FORMULARIO -->
+    <div class="panel-box form-panel">
+        
+        {% if pago_editar %}
+            {% set form_action = url_for('pagos_actualizar', id=pago_editar['id']) %}
+        {% else %}
+            {% set form_action = url_for('pagos_guardar') %}
+        {% endif %}
+
+        <form action="{{ form_action }}" method="POST">
+            
+            <!-- ComboBox Contrato / Folio con atributo data-precio -->
+            <div class="form-group">
+                <label>Contrato / Folio:</label>
+                <select name="contrato_id" id="select_contrato" required class="form-control" onchange="actualizarMontoAuto()">
+                    <option value="" disabled {% if not pago_editar %}selected{% endif %}>-- Seleccione Contrato --</option>
+                    {% for ct in lista_contratos %}
+                        <option value="{{ ct.id }}" 
+                                data-precio="{{ ct.plan_precio }}" 
+                                {% if pago_editar and ct.id == pago_editar['contract_id'] %}selected{% endif %}>
+                            Folio #{{ ct.id }} - {{ ct.cliente_nombre }} ({{ ct.plan_nombre }} - ${{ "%.2f"|format(ct.plan_precio) }})
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <!-- ComboBox Usuario Operador -->
+            <div class="form-group">
+                <label>Usuario Operador:</label>
+                <select name="usuario_id" required class="form-control">
+                    <option value="" disabled {% if not pago_editar %}selected{% endif %}>-- Seleccione Operador --</option>
+                    {% for u in lista_usuarios %}
+                        <option value="{{ u.id }}" {% if pago_editar and u.id == pago_editar['user_id'] %}selected{% endif %}>
+                            {{ u.nombre_completo }} (@{{ u.usuario }})
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <!-- Campo Monto (se llena automáticamente) -->
+            <div class="form-group">
+                <label for="monto">Monto ($):</label>
+                <input type="number" 
+                       step="0.01" 
+                       id="monto" 
+                       name="monto" 
+                       placeholder="0.00" 
+                       required 
+                       class="form-control" 
+                       value="{{ pago_editar['amount'] if pago_editar else '' }}">
+            </div>
+
+            <!-- Método de Pago -->
+            <div class="form-group">
+                <label>Método de Pago:</label>
+                <select name="metodo_pago" required class="form-control">
+                    <option value="" disabled {% if not pago_editar %}selected{% endif %}>-- Seleccione Método --</option>
+                    <option value="Efectivo" {% if pago_editar and pago_editar['payment_method'] == 'Efectivo' %}selected{% endif %}>Efectivo</option>
+                    <option value="Tarjeta" {% if pago_editar and pago_editar['payment_method'] == 'Tarjeta' %}selected{% endif %}>Tarjeta de Crédito / Débito</option>
+                    <option value="Transferencia" {% if pago_editar and pago_editar['payment_method'] == 'Transferencia' %}selected{% endif %}>Transferencia Bancaria</option>
+                </select>
+            </div>
+
+            <!-- Botones de Acción -->
+            <div class="form-actions">
+                <button type="submit" class="btn-rect btn-primary">
+                    {% if pago_editar %}ACTUALIZAR PAGO{% else %}REGISTRAR PAGO{% endif %}
+                </button>
+
+                {% if pago_editar %}
+                    <a href="{{ url_for('pagos_form') }}" class="btn-rect btn-secondary"><center>CANCELAR</center></a>
+                {% endif %}
+            </div>
+        </form>
+    </div>
+
+    <!-- TABLA DE HISTORIAL DE PAGOS -->
+    <div class="panel-box table-panel">
+        <h3>Historial de Pagos</h3>
+        
+        <table class="rect-table">
+            <thead>
+                <tr>
+                    <th>FOLIO</th>
+                    <th>CONTRATO</th>
+                    <th>CLIENTE</th>
+                    <th>MONTO</th>
+                    <th>MÉTODO</th>
+                    <th>OPERADOR</th>
+                    <th>FECHA</th>
+                    <th>ACCIONES</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for p in lista_pagos %}
+                <tr>
+                    <td>#{{ p.id }}</td>
+                    <td>#{{ p.contract_id }}</td>
+                    <td>{{ p.cliente_nombre }}</td>
+                    <td>${{ "%.2f"|format(p.monto) }}</td>
+                    <td>{{ p.metodo_pago }}</td>
+                    <td>{{ p.operador_nombre }}</td>
+                    <td>{{ p.fecha }}</td>
+                    <td class="table-actions">
+                        <a href="{{ url_for('pagos_editar', id=p.id) }}" class="btn-action btn-edit">EDITAR</a>
+                        <a href="{{ url_for('pagos_eliminar', id=p.id) }}" class="btn-action btn-delete" onclick="return confirm('¿Desea eliminar este registro de pago?')">ELIMINAR</a>
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="8">No hay cobros o pagos registrados.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+</div>
+
+<!-- SCRIPT AUTOMATIZACIÓN DE MONTO -->
+<script>
+function actualizarMontoAuto() {
+    const selectContrato = document.getElementById('select_contrato');
+    const inputMonto = document.getElementById('monto');
+    
+    // Obtener la opción seleccionada
+    const optionSeleccionada = selectContrato.options[selectContrato.selectedIndex];
+    
+    // Extraer el precio del atributo data-precio
+    const precio = optionSeleccionada.getAttribute('data-precio');
+    
+    // Asignar al input de monto con formato decimal
+    if (precio) {
+        inputMonto.value = parseFloat(precio).toFixed(2);
+    }
+}
+</script>
+{% endblock %}
