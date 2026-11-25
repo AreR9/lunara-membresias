@@ -4,7 +4,7 @@
 
 ### Sistema web de gestión de membresías para música
 
-Administra clientes, planes, suscripciones y pagos desde un panel web.
+**CRUD completo** de clientes, planes, suscripciones, pagos y staff, con reporte consolidado.
 
 <br>
 
@@ -13,6 +13,7 @@ Administra clientes, planes, suscripciones y pagos desde un panel web.
 ![MySQL](https://img.shields.io/badge/MySQL-4479A1?style=for-the-badge&logo=mysql&logoColor=white)
 ![HTML5](https://img.shields.io/badge/HTML5-E34F26?style=for-the-badge&logo=html5&logoColor=white)
 ![CSS3](https://img.shields.io/badge/CSS3-1572B6?style=for-the-badge&logo=css3&logoColor=white)
+![CRUD](https://img.shields.io/badge/CRUD-Completo-8B5CF6?style=for-the-badge)
 
 <br>
 
@@ -24,22 +25,23 @@ Administra clientes, planes, suscripciones y pagos desde un panel web.
 
 ## ✨ ¿Qué es Lunara?
 
-Una aplicación web para administrar una **plataforma de membresías de música**. Permite dar de alta clientes, definir planes, registrar suscripciones y pagos, y consultar un reporte que cruza toda la información.
+Una aplicación web para administrar una **plataforma de membresías de música**, con operaciones **CRUD completas** (crear, leer, actualizar y eliminar) en todos sus módulos, y un reporte que cruza toda la información.
 
 ## 🎯 Características
 
-| | Módulo | Descripción |
-|:---:|:---|:---|
-| 👤 | **Clientes** | Alta, edición y baja de clientes |
-| 🎧 | **Planes** | Gestión de los planes de membresía |
-| 📝 | **Suscripciones** | Contratos que vinculan clientes con planes |
-| 💳 | **Pagos** | Registro de pagos por usuario, contrato y método de pago |
-| 🧑‍💼 | **Staff** | Administración de los usuarios del sistema |
-| 📊 | **Reporte** | Consulta que une contratos, clientes, membresías, pagos y usuarios |
+| | Módulo | Crear | Leer | Editar | Eliminar |
+|:---:|:---|:---:|:---:|:---:|:---:|
+| 👤 | **Clientes** | ✅ | ✅ | ✅ | ✅ |
+| 🎧 | **Planes** | ✅ | ✅ | ✅ | ✅ |
+| 📝 | **Suscripciones** | ✅ | ✅ | ✅ | ✅ |
+| 💳 | **Pagos** | ✅ | ✅ | ✅ | ✅ |
+| 🧑‍💼 | **Staff** | ✅ | ✅ | ✅ | ✅ |
+| 📊 | **Reporte** | | ✅ | | |
 
 Además:
 
 - ✅ Validación de formularios y de usuarios o correos duplicados
+- 🔗 Integridad entre tablas: al eliminar un usuario, sus pagos se conservan sin dueño (`user_id = NULL`)
 - 🎬 Interfaz con video de fondo
 - 🔐 Credenciales y claves fuera del código mediante variables de entorno (`.env`)
 
